@@ -4342,6 +4342,65 @@ paths:
                           ],
                         "upload_space_used": 571946,
                       }
+  /attachments/{attachment_id}:
+    delete:
+      operationId: remove-attachment
+      summary: Delete an attachment
+      tags: ["users"]
+      description: |
+        Delete an uploaded file given its attachment ID.
+
+        Note that uploaded files that have been referenced in at least
+        one message are automatically deleted once the last message
+        containing a link to them is deleted (whether directly or via
+        a [message retention policy](/help/message-retention-policy)).
+
+        Uploaded files that are never used in a message are
+        automatically deleted a few weeks after being uploaded.
+
+        Attachment IDs can be contained from [GET /attachments](/api/get-attachments).
+      parameters:
+        - name: attachment_id
+          in: path
+          description: |
+            The ID of the attachment to be deleted.
+          schema:
+            type: string
+          example: "1"
+          required: true
+      responses:
+        "200":
+          $ref: "#/components/responses/SimpleSuccess"
+        "400":
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - allOf:
+                      - $ref: "#/components/schemas/CodedError"
+                      - example:
+                          {
+                            "result": "error",
+                            "msg": "Invalid attachment",
+                            "code": "BAD_REQUEST",
+                          }
+                        description: |
+                          A typical failed JSON response for when the `attachment_id` is invalid
+        "401":
+          description: Error.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/JsonError"
+                  - example:
+                      {
+                        "result": "error",
+                        "msg": "Not logged in: API authentication or user session required",
+                      }
+                    description: |
+                      A typical failed JSON response for when the user is not logged in
   /drafts:
     get:
       operationId: get-drafts
@@ -7656,7 +7715,7 @@ paths:
         - name: default_view
           in: query
           description: |
-            The [default view](/help/change-default-view) used when opening a new
+            The [default view](/help/configure-default-view) used when opening a new
             Zulip web app window or hitting the `Esc` keyboard shortcut repeatedly.
 
             - "recent_topics" - Recent topics view
@@ -7664,6 +7723,16 @@ paths:
           schema:
             type: string
           example: all_messages
+        - name: escape_navigates_to_default_view
+          in: query
+          description: |
+            Whether the escape key navigates to the
+            [configured default view](/help/configure-default-view).
+
+            **Changes**: New in Zulip 5.0 (feature level 107).
+          schema:
+            type: boolean
+          example: true
         - name: left_side_userlist
           in: query
           description: |
@@ -9570,11 +9639,18 @@ paths:
                           default_view:
                             type: string
                             description: |
-                              The [default view](/help/change-default-view) used when opening a new
+                              The [default view](/help/configure-default-view) used when opening a new
                               Zulip web app window or hitting the `Esc` keyboard shortcut repeatedly.
 
                               - "recent_topics" - Recent topics view
                               - "all_messages" - All messages view
+                          escape_navigates_to_default_view:
+                            type: boolean
+                            description: |
+                              Whether the escape key navigates to the
+                              [configured default view](/help/configure-default-view).
+
+                              **Changes**: New in Zulip 5.0 (feature level 107).
                           left_side_userlist:
                             type: boolean
                             description: |
@@ -10231,7 +10307,7 @@ paths:
                           and only for clients that did not include `user_settings_object` in
                           their client_capabilities` when registering the event queue.
 
-                          The [default view](/help/change-default-view) in Zulip, represented
+                          The [default view](/help/configure-default-view) in Zulip, represented
                           as the URL suffix after `#` to be rendered when Zulip loads.
 
                           Currently supported values are `all_messages` and `recent_topics`.
@@ -11256,11 +11332,18 @@ paths:
                           default_view:
                             type: string
                             description: |
-                              The [default view](/help/change-default-view) used when opening a new
+                              The [default view](/help/configure-default-view) used when opening a new
                               Zulip web app window or hitting the `Esc` keyboard shortcut repeatedly.
 
                               - "recent_topics" - Recent topics view
                               - "all_messages" - All messages view
+                          escape_navigates_to_default_view:
+                            type: boolean
+                            description: |
+                              Whether the escape key navigates to the
+                              [configured default view](/help/configure-default-view).
+
+                              **Changes**: New in Zulip 5.0 (feature level 107).
                           left_side_userlist:
                             type: boolean
                             description: |
@@ -12185,7 +12268,7 @@ paths:
         - name: default_view
           in: query
           description: |
-            The [default view](/help/change-default-view) used when opening a new
+            The [default view](/help/configure-default-view) used when opening a new
             Zulip web app window or hitting the `Esc` keyboard shortcut repeatedly.
 
             - "recent_topics" - Recent topics view
@@ -12198,6 +12281,16 @@ paths:
           schema:
             type: string
           example: all_messages
+        - name: escape_navigates_to_default_view
+          in: query
+          description: |
+            Whether the escape key navigates to the
+            [configured default view](/help/configure-default-view).
+
+            **Changes**: New in Zulip 5.0 (feature level 107).
+          schema:
+            type: boolean
+          example: true
         - name: left_side_userlist
           in: query
           description: |
